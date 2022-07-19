@@ -36,20 +36,28 @@ def analyze_data():
     for item in aggregation:
         alert = False
 
-        variable = item["measurement__name"]
+        #variable = item["measurement__name"]
+        variable = "risk"
         max_value = item["measurement__max_value"] or 0
         min_value = item["measurement__min_value"] or 0
+        dehyd_value_temp = 22 # Tempeartura tolerable
+        dehyd_value_hum = 50 # % de humedad tolerable
+
+
 
         country = item['station__location__country__name']
         state = item['station__location__state__name']
         city = item['station__location__city__name']
         user = item['station__user__username']
 
-        if item["check_value"] > max_value or item["check_value"] < min_value:
+        # if item["check_value"] > max_value or item["check_value"] < min_value:
+        #     alert = True
+
+        if item["check_value"] > dehyd_value_temp and item["check_value"] > dehyd_value_hum:
             alert = True
 
         if alert:
-            message = "ALERT {} {} {}".format(variable, min_value, max_value)
+            message = "HYDRATE {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
             client.publish(topic, message)
