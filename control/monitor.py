@@ -108,7 +108,7 @@ def analyze_data():
             cont += 1
             hum = item["check_value"]
     if cont == 2:
-        message = "ALERT HYDRATE {} {} {}".format(variable, temp, hum)
+        message = "ALERT_HYDRATE {} {} {}".format("Hidratar", temp, hum)
         topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
         print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
         client.publish(topic, message)
