@@ -96,8 +96,7 @@ def analyze_data():
     hum = 0
     for item in aggregation:
         alert = False
-        #variable = item["measurement__name"]
-        variable = "hidratar"
+        variable = item["measurement__name"]
         country = item['station__location__country__name']
         state = item['station__location__state__name']
         city = item['station__location__city__name']
