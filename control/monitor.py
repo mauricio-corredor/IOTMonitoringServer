@@ -36,8 +36,8 @@ def analyze_data():
     for item in aggregation:
         alert = False
 
-        #variable = item["measurement__name"]
-        variable = "risk"
+        variable = item["measurement__name"]
+        #variable = "risk"
         max_value = item["measurement__max_value"] or 0
         min_value = item["measurement__min_value"] or 0
         dehyd_value_temp = 22 # Tempeartura tolerable
@@ -50,11 +50,11 @@ def analyze_data():
         city = item['station__location__city__name']
         user = item['station__user__username']
 
-        # if item["check_value"] > max_value or item["check_value"] < min_value:
-        #     alert = True
-
-        if item["check_value"] > dehyd_value_temp or item["check_value"] >= dehyd_value_hum:
+        if item["check_value"] > max_value or item["check_value"] < min_value:
             alert = True
+
+        # if item["check_value"] > dehyd_value_temp or item["check_value"] >= dehyd_value_hum:
+        #     alert = True
 
         if alert:
             message = "HYDRATE {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
