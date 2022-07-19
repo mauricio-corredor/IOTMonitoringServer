@@ -11,13 +11,69 @@ from django.conf import settings
 client = mqtt.Client(settings.MQTT_USER_PUB)
 
 
+# def analyze_data():
+#     # Consulta todos los datos de la última hora, los agrupa por estación y variable
+#     # Compara el promedio con los valores límite que están en la base de datos para esa variable.
+#     # Si el promedio se excede de los límites, se envia un mensaje de alerta.
+
+#     print("Calculando alertas...")
+
+#     data = Data.objects.filter(
+#         base_time__gte=datetime.now() - timedelta(hours=1))
+#     aggregation = data.annotate(check_value=Avg('avg_value')) \
+#         .select_related('station', 'measurement') \
+#         .select_related('station__user', 'station__location') \
+#         .select_related('station__location__city', 'station__location__state',
+#                         'station__location__country') \
+#         .values('check_value', 'station__user__username',
+#                 'measurement__name',
+#                 'measurement__max_value',
+#                 'measurement__min_value',
+#                 'station__location__city__name',
+#                 'station__location__state__name',
+#                 'station__location__country__name')
+#     alerts = 0
+#     for item in aggregation:
+#         alert = False
+
+#         variable = item["measurement__name"]
+#         #variable = "risk"
+#         max_value = item["measurement__max_value"] or 0
+#         min_value = item["measurement__min_value"] or 0
+#         dehyd_value_temp = 22 # Tempeartura tolerable
+#         dehyd_value_hum = 50 # % de humedad tolerable
+
+
+
+#         country = item['station__location__country__name']
+#         state = item['station__location__state__name']
+#         city = item['station__location__city__name']
+#         user = item['station__user__username']
+
+#         #if item["check_value"] > max_value or item["check_value"] < min_value:
+#         #    alert = True
+
+#         if item["measurement__name"]=="temperatura" and item["check_value"] > dehyd_value_temp and item["measurement__name"]=="humedad" and item["check_value"] > dehyd_value_hum:
+#             alert = True
+
+
+
+
+#         # if item["check_value"] > dehyd_value_temp or item["check_value"] >= dehyd_value_hum:
+#         #     alert = True
+
+#         if alert:
+#             message = "ALERT HYDRATE {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
+#             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+#             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
+#             client.publish(topic, message)
+#             alerts += 1
+
+#     print(len(aggregation), "dispositivos revisados")
+#     print(alerts, "alertas enviadas")
+
 def analyze_data():
-    # Consulta todos los datos de la última hora, los agrupa por estación y variable
-    # Compara el promedio con los valores límite que están en la base de datos para esa variable.
-    # Si el promedio se excede de los límites, se envia un mensaje de alerta.
-
-    print("Calculando alertas...")
-
+    print("Calculando otras alertas...")
     data = Data.objects.filter(
         base_time__gte=datetime.now() - timedelta(hours=1))
     aggregation = data.annotate(check_value=Avg('avg_value')) \
@@ -33,36 +89,30 @@ def analyze_data():
                 'station__location__state__name',
                 'station__location__country__name')
     alerts = 0
+    valorTemperatura = 10
+    valorHumedad = 30
+    cont = 0
+    temp = 0
+    hum = 0
     for item in aggregation:
         alert = False
-
         variable = item["measurement__name"]
-        #variable = "risk"
-        max_value = item["measurement__max_value"] or 0
-        min_value = item["measurement__min_value"] or 0
-        dehyd_value_temp = 22 # Tempeartura tolerable
-        dehyd_value_hum = 50 # % de humedad tolerable
-
-
-
         country = item['station__location__country__name']
         state = item['station__location__state__name']
         city = item['station__location__city__name']
         user = item['station__user__username']
-
-        if item["check_value"] > max_value or item["check_value"] < min_value:
-            alert = True
-
-        # if item["check_value"] > dehyd_value_temp or item["check_value"] >= dehyd_value_hum:
-        #     alert = True
-
-        if alert:
-            message = "ALERT {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
-            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
-            print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
-            client.publish(topic, message)
-            alerts += 1
-
+        if variable == "temperatura" and item["check_value"] > valorTemperatura:
+            cont += 1
+            temp = item["check_value"]
+        if variable == "humedad" and item["check_value"] > valorHumedad:
+            cont += 1
+            hum = item["check_value"]
+    if cont == 2:
+        message = "ALERT HYDRATE {} {} {}".format(variable, temp, hum)
+        topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+        print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
+        client.publish(topic, message)
+        alerts += 1
     print(len(aggregation), "dispositivos revisados")
     print(alerts, "alertas enviadas")
 
