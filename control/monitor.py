@@ -108,7 +108,7 @@ def analyze_data():
             cont += 1
             hum = item["check_value"]
     if cont == 2:
-        message = "ALERT {} {} {}".format('hidratar', temp, hum)
+        message = "ALERT {} {} {}".format(variable, temp, hum)
         topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
         print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
         client.publish(topic, message)
@@ -163,7 +163,7 @@ def start_cron():
     Inicia el cron que se encarga de ejecutar la función analyze_data cada 5 minutos.
     '''
     print("Iniciando cron...")
-    schedule.every(5).minutes.do(analyze_data)
+    schedule.every(1).minutes.do(analyze_data)
     print("Servicio de control iniciado")
     while 1:
         schedule.run_pending()
