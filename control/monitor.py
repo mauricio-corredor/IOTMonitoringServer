@@ -57,7 +57,7 @@ def analyze_data():
         #     alert = True
 
         if alert:
-            message = "HYDRATE {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
+            message = "ALERT {} °C {} °C {} %".format(variable, dehyd_value_temp, dehyd_value_hum)
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
             client.publish(topic, message)
