@@ -53,7 +53,7 @@ def analyze_data():
         # if item["check_value"] > max_value or item["check_value"] < min_value:
         #     alert = True
 
-        if item["check_value"] > dehyd_value_temp and item["check_value"] > dehyd_value_hum:
+        if item["check_value"] > dehyd_value_temp or item["check_value"] >= dehyd_value_hum:
             alert = True
 
         if alert:
